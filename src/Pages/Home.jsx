@@ -4,7 +4,7 @@ import Search from '../Component/Search'
 const Home = () => {
   return (
     <section className='flex gap-10'>
-    <div>
+    <div className='w-[440px]'>
       <Search/>
     </div>
     </section>

@@ -13,7 +13,7 @@ const Nav_Bar = () => {
   return (
     <section className="relative dark:bg-black">
       {nav ? (
-        <div className='w-[140px] h-[832px] py-[14px] px-[14px] rounded-[20px] bg-blue dark:bg-gray-900 absolute transition-colors duration-150'>
+        <div className='w-[140px] h-[832px] py-[14px] px-[14px] rounded-[20px] bg-blue dark:bg-gray-900 absolute transition-colors duration-150 z-50'>
           <IoCloseCircleSharp onClick={() => setNav(!nav)} size={50} className="mb-3 ml-8 text-white lg:hidden" />
         <div className='flex flex-col items-center gap-[45px]'>
         <Profile_pick/>

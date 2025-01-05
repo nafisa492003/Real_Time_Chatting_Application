@@ -26,7 +26,7 @@ const RootLayout = () => {
   }
 
   return (
-    <section className="flex flex-col gap-5 px-1 pt-3 md:px-5 dark:bg-black dark:text-white lg:flex-row">
+    <section className="flex flex-col gap-0 px-1 pt-3 lg:gap-4 md:px-5 dark:bg-black dark:text-white lg:flex-row">
       <Nav_Bar />
       <Outlet />
     </section>
