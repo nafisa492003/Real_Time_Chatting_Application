@@ -3,6 +3,7 @@ import { Outlet, Navigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Nav_Bar from "./NavBar/Nav_Bar";
 import { ImSpinner6 } from "react-icons/im";
+import Search from "./Search";
 const RootLayout = () => {
   const auth = getAuth(); 
   const [user, setUser] = useState(null);
@@ -28,7 +29,10 @@ const RootLayout = () => {
   return (
     <section className="flex flex-col gap-0 px-1 pt-3 lg:gap-4 md:px-5 dark:bg-black dark:text-white lg:flex-row">
       <Nav_Bar />
+      <div className="w-full">
+        <Search/>
       <Outlet />
+      </div>
     </section>
   );
 };
