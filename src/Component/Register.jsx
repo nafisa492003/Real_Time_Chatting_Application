@@ -3,10 +3,12 @@ import reg_img from "../assets/reg_pick.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, createUserWithEmailAndPassword ,sendEmailVerification } from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const Register = () => {
   const auth = getAuth();
+  const db = getDatabase();
   const navigate = useNavigate();
   let [email, setEmail] = useState("");
   let [emailerr, setEmailerr] = useState(false);
@@ -41,26 +43,36 @@ const Register = () => {
       setLoder(true);
 
       createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          setEmail("");
-          setName("");
-          setPassword("");
-          sendEmailVerification(auth.currentUser)
-          toast.success("Registration successfully done!");
-          setTimeout(() => {
-            navigate("/login");
-          }, 2000);
-        })
-        .catch((error) => {
-          setLoder(false);
-          if (error.code.includes("auth/email-already-in-use")) {
-            setEmailerr(true);
-            toast.error("Email is already in use!");
-          } else {
-            toast.error("Registration failed! Try again.");
-          }
-        });
-    
+  .then((userCredential) => {
+    const user = userCredential.user;
+    sendEmailVerification(user).then(() => {
+      toast.success("Verification email sent!");
+    });
+
+    set(ref(db, "users/" + user.uid), {
+      name: name,
+      email: email,
+      profileImage: user.photoURL || "default_image_url", // Set default profile picture
+      createdAt: new Date().toISOString(),
+    });
+
+    setEmail("");
+    setName("");
+    setPassword("");
+    toast.success("Registration successfully done!");
+    setTimeout(() => {
+      navigate("/login");
+    }, 2000);
+  })
+  .catch((error) => {
+    setLoder(false);
+    if (error.code.includes("auth/email-already-in-use")) {
+      setEmailerr(true);
+      toast.error("Email is already in use!");
+    } else {
+      toast.error("Registration failed! Try again.");
+    }
+  });
     }
   };
   return (

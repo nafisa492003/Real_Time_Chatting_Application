@@ -7,13 +7,53 @@ import { getAuth } from "firebase/auth";
 import { getDatabase, ref, set, get } from "firebase/database";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const Profile_pick = () => {
   const [profilepick, setProfilepick] = useState(false);
   const [image, setImage] = useState(null);
   const [profileImage, setProfileImage] = useState(profile_img_placeholder);
+  const [userName, setUserName] = useState("");
   const cropperRef = useRef(null);
   const auth = getAuth();
   const db = getDatabase();
+
+  // Fetch user data from Firebase (name and profile image)
+  const fetchProfileData = () => {
+    const user = auth.currentUser;
+    if (user) {
+      const userId = user.uid;
+      const nameRef = ref(db, `users/${userId}/name`);
+      const imageRef = ref(db, `users/${userId}/profileImage`);
+
+      // Fetch user's name
+      get(nameRef)
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            setUserName(snapshot.val());
+            
+          } else {
+            console.log("No name found, setting default.");
+            setUserName(user.displayName || "User");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching name:", error);
+        });
+
+      // Fetch profile image
+      get(imageRef)
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            setProfileImage(snapshot.val());
+          } else {
+            console.log("No profile image found, setting default.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching profile image:", error);
+        });
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -25,6 +65,7 @@ const Profile_pick = () => {
       reader.readAsDataURL(file);
     }
   };
+
   const handleSave = () => {
     const cropper = cropperRef.current.cropper;
     if (cropper) {
@@ -53,25 +94,8 @@ const Profile_pick = () => {
     }
   };
 
-  const fetchProfileImage = () => {
-    const user = auth.currentUser;
-    if (user) {
-      const userId = user.uid;
-      const imageRef = ref(db, `users/${userId}/profileImage`);
-      get(imageRef)
-        .then((snapshot) => {
-          if (snapshot.exists()) {
-            setProfileImage(snapshot.val());
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching profile image:", error);
-        });
-    }
-  };
-
   useEffect(() => {
-    fetchProfileImage();
+    fetchProfileData(); // Fetch user data on component load
   }, []);
 
   return (
@@ -82,21 +106,19 @@ const Profile_pick = () => {
           <h2 className="mb-2 text-[18px] md:text-[24px] font-semibold font-Poppins text-blue ">
             Upload Your Profile Picture
           </h2>
-
           <input
             type="file"
             accept="image/*"
             onChange={handleFileChange}
             className="mb-4"
           />
-
           {image && (
             <div className="w-full max-w-[300px] sm:max-w-[600px] md:max-w-[800px] mx-auto">
               <Cropper
                 src={image}
                 style={{
                   width: "100%",
-                  height: "auto", 
+                  height: "auto",
                 }}
                 initialAspectRatio={1}
                 aspectRatio={1}
@@ -106,21 +128,24 @@ const Profile_pick = () => {
             </div>
           )}
           <div className="flex items-center justify-center gap-3">
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 mt-2 text-white rounded font-Poppins bg-blue text-[20px]"
-          >
-            Save
-          </button>
-          <button className="px-4 py-2 mt-2 text-white rounded font-Poppins bg-blue text-[20px] " onClick={()=>setProfilepick(!profilepick)}>Close</button>
-            
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 mt-2 text-white rounded font-Poppins bg-blue text-[20px]"
+            >
+              Save
+            </button>
+            <button
+              className="px-4 py-2 mt-2 text-white rounded font-Poppins bg-blue text-[20px]"
+              onClick={() => setProfilepick(!profilepick)}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
-
       <div
         onClick={() => setProfilepick(!profilepick)}
-        className="w-[100px] h-[100px] rounded-full flex items-center justify-center group relative cursor-pointer"
+        className="w-[100px] h-[100px] rounded-full flex flex-col items-center justify-center group relative cursor-pointer mt-4"
       >
         <RiUploadCloud2Fill className="text-[50px] group-hover:absolute z-10 group-hover:text-white" />
         <img
@@ -128,6 +153,9 @@ const Profile_pick = () => {
           src={profileImage}
           alt="Profile Image"
         />
+        <span className="text-sm text-white">
+          {userName || "User"} 
+        </span>
       </div>
     </section>
   );

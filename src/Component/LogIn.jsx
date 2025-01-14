@@ -11,45 +11,84 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
 } from "firebase/auth";
+import { ref, get, set, getDatabase } from "firebase/database"; // Added imports for Realtime Database
 import { useDispatch } from "react-redux";
 import { login } from "./Slices/userSlice";
+
 const LogIn = () => {
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  let [email, setEmail] = useState("");
-  let [emailerr, setEmailerr] = useState(false);
-  let [password, setPassword] = useState("");
-  let [passworderr, setPassworderr] = useState(false);
-  let [hide, setHide] = useState(true);
-  let [loder, setLoder] = useState(false);
-  let handleToggle = () => {
+  const [email, setEmail] = useState("");
+  const [emailerr, setEmailerr] = useState(false);
+  const [password, setPassword] = useState("");
+  const [passworderr, setPassworderr] = useState(false);
+  const [hide, setHide] = useState(true);
+  const [loder, setLoder] = useState(false);
+
+  const handleToggle = () => {
     setHide(!hide);
   };
+
   const handlegoogle = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
         const user = result.user;
-        dispatch(
-          login({
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL,
-          })
-        );
-        toast.success("Login successfully done!");
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+        console.log("Google login successful:", user);
+        const db = getDatabase(); 
+        const userId = user.uid;
+        const userRef = ref(db, `users/${userId}`);
+        const profile_img_placeholder = "https://example.com/default-profile-img.png"; 
+        get(userRef).then((snapshot) => {
+          if (!snapshot.exists()) {
+            set(userRef, {
+              name: user.displayName,
+              email: user.email,
+              profileImage: user.photoURL || profile_img_placeholder,
+            })
+              .then(() => {
+                console.log("User data saved to Firebase");
+                toast.success("Google login successful!");
+                dispatch(
+                  login({
+                    uid: user.uid,
+                    displayName: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                  })
+                );
+                setTimeout(() => {
+                  navigate("/"); // Navigate to home page after login
+                }, 2000);
+              })
+              .catch((error) => {
+                console.error("Error saving user data to Firebase:", error);
+                toast.error("Failed to save user data. Please try again.");
+              });
+          } else {
+            // If user exists, proceed without saving
+            toast.success("Google login successful!");
+            dispatch(
+              login({
+                uid: user.uid,
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+              })
+            );
+            setTimeout(() => {
+              navigate("/"); // Navigate to home page after login
+            }, 2000);
+          }
+        });
       })
       .catch((error) => {
         console.error("Google login failed:", error.message);
         toast.error("Google login failed. Please try again.");
       });
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!email) {
@@ -90,6 +129,7 @@ const LogIn = () => {
         });
     }
   };
+
   return (
     <section className="flex justify-between">
       <ToastContainer position="top-center" autoClose={3000} theme="light" />
