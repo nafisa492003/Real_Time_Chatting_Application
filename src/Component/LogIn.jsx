@@ -5,12 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { ref, get, set, getDatabase } from "firebase/database"; // Added imports for Realtime Database
 import { useDispatch } from "react-redux";
 import { login } from "./Slices/userSlice";
@@ -25,107 +20,137 @@ const LogIn = () => {
   const [password, setPassword] = useState("");
   const [passworderr, setPassworderr] = useState(false);
   const [hide, setHide] = useState(true);
-  const [loder, setLoder] = useState(false);
+  const [loader, setLoader] = useState(false);
 
-  const handleToggle = () => {
-    setHide(!hide);
-  };
+  const handleToggle = () => setHide(!hide);
 
   const handlegoogle = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
         const user = result.user;
-        console.log("Google login successful:", user);
-        const db = getDatabase(); 
+        const db = getDatabase();
         const userId = user.uid;
         const userRef = ref(db, `users/${userId}`);
-        const profile_img_placeholder = "https://example.com/default-profile-img.png"; 
-        get(userRef).then((snapshot) => {
-          if (!snapshot.exists()) {
-            set(userRef, {
-              name: user.displayName,
-              email: user.email,
-              profileImage: user.photoURL || profile_img_placeholder,
-            })
-              .then(() => {
-                console.log("User data saved to Firebase");
-                toast.success("Google login successful!");
-                dispatch(
-                  login({
-                    uid: user.uid,
-                    displayName: user.displayName,
-                    email: user.email,
-                    photoURL: user.photoURL,
-                  })
-                );
-                setTimeout(() => {
-                  navigate("/"); // Navigate to home page after login
-                }, 2000);
-              })
-              .catch((error) => {
-                console.error("Error saving user data to Firebase:", error);
-                toast.error("Failed to save user data. Please try again.");
-              });
-          } else {
-            // If user exists, proceed without saving
-            toast.success("Google login successful!");
-            dispatch(
-              login({
-                uid: user.uid,
-                displayName: user.displayName,
+  
+        // Default values for photoURL and displayName
+        const profile_img_placeholder = "https://example.com/default-profile-img.png"; // Replace with a real URL
+        const default_name = "Anonymous User";
+  
+        get(userRef)
+          .then((snapshot) => {
+            if (!snapshot.exists()) {
+              // Save user data if not already present
+              set(userRef, {
+                name: user.displayName || default_name, // Use fallback if displayName is null
                 email: user.email,
-                photoURL: user.photoURL,
+                profileImage: user.photoURL || profile_img_placeholder, // Fallback if photoURL is null
+                createdAt: new Date().toISOString(), // Track when the user was created
               })
-            );
-            setTimeout(() => {
-              navigate("/"); // Navigate to home page after login
-            }, 2000);
-          }
-        });
+                .then(() => {
+                  toast.success("Google login successful!");
+                  dispatch(
+                    login({
+                      uid: user.uid,
+                      displayName: user.displayName || default_name,
+                      email: user.email,
+                      photoURL: user.photoURL || profile_img_placeholder,
+                    })
+                  );
+                  // Redirect to home after a short delay
+                  setTimeout(() => {
+                    navigate("/");
+                  }, 2000);
+                })
+                .catch((error) => {
+                  console.error("Error saving user data:", error);
+                  toast.error("Failed to save user data.");
+                });
+            } else {
+              // If user data already exists
+              const existingUser = snapshot.val();
+  
+              // Ensure that the user data is up to date (e.g., in case of updated Google profile)
+              const updatedUserData = {
+                name: existingUser.name || user.displayName || default_name,
+                email: user.email,
+                profileImage: existingUser.profileImage || user.photoURL || profile_img_placeholder,
+              };
+  
+              update(userRef, updatedUserData)
+                .then(() => {
+                  toast.success("Google login successful!");
+                  dispatch(
+                    login({
+                      uid: user.uid,
+                      displayName: updatedUserData.name,
+                      email: updatedUserData.email,
+                      photoURL: updatedUserData.profileImage,
+                    })
+                  );
+                  // Redirect to home after a short delay
+                  setTimeout(() => {
+                    navigate("/");
+                  }, 2000);
+                })
+                .catch((error) => {
+                  console.error("Error updating user data:", error);
+                  toast.error("Failed to update user data.");
+                });
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching user data:", error);
+            toast.error("Failed to fetch user data. Please try again.");
+          });
       })
       .catch((error) => {
         console.error("Google login failed:", error.message);
         toast.error("Google login failed. Please try again.");
       });
   };
-
+  
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email) {
+    if (!email || !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
       setEmailerr(true);
-      setEmail("");
-    } else if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-      setEmailerr(true);
-      setEmail("");
+    } else {
+      setEmailerr(false);
     }
+
     if (!password) {
       setPassworderr(true);
-      setPassword("");
+    } else {
+      setPassworderr(false);
     }
+
     if (email && password) {
-      setLoder(true);
+      setLoader(true);
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-          dispatch(
-            login({
-              uid: user.uid,
-              email: user.email,
-            })
-          );
-          setEmail("");
-          setPassword("");
-          toast.success("Login successfully done!");
-          setTimeout(() => {
-            navigate("/");
-          }, 2000);
+          const db = getDatabase();
+          const userRef = ref(db, `users/${user.uid}`);
+          get(userRef).then((snapshot) => {
+            if (snapshot.exists()) {
+              dispatch(
+                login({
+                  uid: user.uid,
+                  displayName: snapshot.val().name,
+                  email: snapshot.val().email,
+                  photoURL: snapshot.val().profileImage,
+                })
+              );
+              toast.success("Login successful!");
+              setTimeout(() => navigate("/"), 2000);
+            } else {
+              toast.error("User not found in database.");
+            }
+          });
         })
         .catch((error) => {
-          setLoder(false);
-          if (error) {
-            setEmailerr(true);
-            toast.error("Login failed! Try again.");
-          }
+          setLoader(false);
+          toast.error("Invalid credentials. Try again!");
         });
     }
   };
@@ -134,99 +159,53 @@ const LogIn = () => {
     <section className="flex justify-between">
       <ToastContainer position="top-center" autoClose={3000} theme="light" />
       <div className="flex flex-col items-center justify-center w-full h-screen p-3 lg:w-1/2 md:p-0">
-        {/* title */}
         <div>
           <h1 className="font-nunito font-bold text-[30px] md:text-[35px] mb-2 text-royal_blue text-center lg:text-left">
-            Login to your account!
+            Welcome back
           </h1>
-          <div
-            onClick={handlegoogle}
-            className="flex gap-3 w-[220px] p-5 border-[1.72px] border-bad mb-3 cursor-pointer"
-          >
-            <img src={google} alt="" />
-            <h5 className="text-sm font-semibold font-Open_Sans text-royal_blue">
-              Login with Google
-            </h5>
-          </div>
-          {/* title */}
-          <form action="">
-            <div className=" relative mt-[62px]">
-              <label className="font-nunito font-semibold text-[13px] text-hash bg-white px-4 absolute top-[-8px] left-[0px]">
-                Email Addres
-              </label>
+          <button onClick={handlegoogle} className="bg-white py-[20px] px-[26px] rounded-lg w-[368px] flex justify-center items-center mt-[40px] border-2 border-[#ddd]">
+            <img src={google} alt="google" className="w-[25px]" />
+            <p className="text-[21px] text-royal_blue font-nunito font-semibold ml-[20px]">Sign In with Google</p>
+          </button>
+          <form>
+            <div className="relative mt-[38px] w-full md:w-[368px]">
+              <label className="font-nunito font-semibold text-[13px] text-royal_blue bg-white px-4 absolute top-[-8px] left-[40px]">Email Address</label>
               <input
-                className="w-full md:w-[368px] border-b-[1.72px] border-boder_blue font-nunito font-semibold text-[21px] text-royal_blue px-[22px] py-[20px] outline-none"
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setEmailerr(false);
-                }}
-                type="text"
+                className="w-full h-[81px] rounded-lg border-[1.72px] border-hash font-nunito font-semibold text-[21px] text-primary px-[52px] py-[26px] outline-none"
+                type="email"
+                onChange={(e) => { setEmail(e.target.value); setEmailerr(false); }}
               />
-              {emailerr && (
-                <>
-                  <p className="text-red-600">
-                    Please enter your correct email
-                  </p>
-                </>
-              )}
+              {emailerr && <p className="text-red-600">Invalid email address</p>}
             </div>
-            <div className=" relative mt-[62px]">
-              <label className="font-nunito font-semibold text-[13px] text-hash bg-white px-4 absolute top-[-8px] left-[0px]">
-                Password
-              </label>
+            <div className="relative mt-[38px] w-full md:w-[368px]">
+              <label className="font-nunito font-semibold text-[13px] text-royal_blue bg-white px-4 absolute top-[-8px] left-[40px]">Password</label>
               <input
-                className="w-full md:w-[368px] border-b-[1.72px] border-hash font-nunito font-semibold text-[21px] text-royal_blue px-[22px] py-[20px] outline-none"
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setPassworderr(false);
-                }}
-                type={hide ? "password" : "text"}
+                className="w-full h-[81px] rounded-lg border-[1.72px] border-hash font-nunito font-semibold text-[21px] text-primary px-[52px] py-[26px] outline-none"
+                type={hide ? "text" : "password"}
+                onChange={(e) => { setPassword(e.target.value); setPassworderr(false); }}
               />
               {hide ? (
-                <FaEyeSlash
-                  onClick={handleToggle}
-                  size={25}
-                  className="absolute top-[30px] right-[24px]  cursor-pointer"
-                />
+                <FaEye onClick={handleToggle} size={25} className="absolute top-[30px] right-[24px] cursor-pointer" />
               ) : (
-                <FaEye
-                  onClick={handleToggle}
-                  size={25}
-                  className="absolute top-[30px] right-[24px]  cursor-pointer"
-                />
+                <FaEyeSlash onClick={handleToggle} size={25} className="absolute top-[30px] right-[24px] cursor-pointer" />
               )}
-              {passworderr && (
-                <>
-                  <p className="text-red-600">Password field is empty</p>
-                </>
-              )}
+              {passworderr && <p className="text-red-600">Password is required</p>}
             </div>
-            {loder ? (
-              <></>
+            {loader ? (
+              <button className="font-nunito font-semibold text-[21px] text-white bg-blue rounded-[86px] mt-[40px] w-full md:w-[364px] py-5">Login....</button>
             ) : (
-              <button
-                onClick={handleSubmit}
-                className="font-nunito font-semibold text-[21px] text-white bg-blue w-full md:w-[368px] py-[20px] rounded mt-[51px] text-center shadow-xl"
-              >
-                Login to Continue
+              <button onClick={handleSubmit} className="font-nunito font-semibold text-[21px] text-white bg-blue rounded-[86px] mt-[40px] w-full md:w-[364px] py-5">
+                Sign In
               </button>
             )}
-
             <p className="font-openSans font-normal text-[13px] text-royal_blue mt-[20px] ps-[75px]">
-              Already have an account ?{" "}
-              <Link className="font-bold text-orange-500" to={"/register"}>
-                Sign up
-              </Link>
+              Don't have an account? <Link className="font-bold text-orange-500" to="/register">Sign Up</Link>
             </p>
           </form>
         </div>
       </div>
       <div className="hidden w-1/2 md:block">
-        <img
-          className="object-cover w-full h-screen"
-          src={log_in_pick}
-          alt=""
-        />
+        <img className="object-cover w-full h-screen" src={log_in_pick} alt="" />
       </div>
     </section>
   );

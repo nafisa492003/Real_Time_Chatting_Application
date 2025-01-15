@@ -153,7 +153,7 @@ const Profile_pick = () => {
           src={profileImage}
           alt="Profile Image"
         />
-        <span className="text-sm text-white">
+        <span className="text-sm text-center text-white">
           {userName || "User"} 
         </span>
       </div>
