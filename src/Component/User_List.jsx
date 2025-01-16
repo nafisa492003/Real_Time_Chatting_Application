@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
 import group_img from "../assets/group_img.png";
 import { FaPlus, FaMinus } from "react-icons/fa";
-import { getDatabase, ref, onValue, update } from "firebase/database";
+import { getDatabase, ref, onValue, remove, set } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
 const User_List = () => {
@@ -29,38 +29,36 @@ const User_List = () => {
   }, [db, currentUser]);
 
   const handleRequest = (receiverId, isRequested) => {
-    const senderUid = auth.currentUser?.uid; // Sender's UID
-    const senderName = auth.currentUser?.displayName; // Sender's name
-    const senderProfileImage = auth.currentUser?.photoURL; // Sender's profile image
+    const senderUid = auth.currentUser?.uid;
+    const senderName = auth.currentUser?.displayName;
+    const senderProfileImage = auth.currentUser?.photoURL;
 
-    const receiverRef = ref(db, `users/${receiverId}/friendRequests/${senderUid}`);
-    const senderRef = ref(db, `users/${senderUid}/requested/${receiverId}`);
+    const receiverRequestRef = ref(
+      db,
+      `users/${receiverId}/friendRequests/${senderUid}`
+    );
 
     if (isRequested) {
       // Cancel the friend request
-      update(receiverRef, null).then(() => {
-        update(senderRef, null).then(() => {
-          setUsers((prevUsers) =>
-            prevUsers.map((user) =>
-              user.id === receiverId ? { ...user, requested: false } : user
-            )
-          );
-        });
+      remove(receiverRequestRef).then(() => {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === receiverId ? { ...user, requested: false } : user
+          )
+        );
       });
     } else {
       // Send the friend request
-      update(receiverRef, {
-        name: senderName,
-        profileImage: senderProfileImage,
+      set(receiverRequestRef, {
+        name: senderName || "Anonymous",
+        profileImage: senderProfileImage || group_img,
         message: "Hi, I want to connect with you!",
       }).then(() => {
-        update(senderRef, { requested: true }).then(() => {
-          setUsers((prevUsers) =>
-            prevUsers.map((user) =>
-              user.id === receiverId ? { ...user, requested: true } : user
-            )
-          );
-        });
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === receiverId ? { ...user, requested: true } : user
+          )
+        );
       });
     }
   };

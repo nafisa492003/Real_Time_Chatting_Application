@@ -48,41 +48,43 @@ const Register = () => {
     if (email && name && password) {
       setLoader(true);
       createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-    
-        sendEmailVerification(user).then(() => {
-          toast.success("Verification email sent!");
+        .then((userCredential) => {
+          const user = userCredential.user;
+
+          sendEmailVerification(user).then(() => {
+            toast.success("Verification email sent!");
+          });
+
+          // Set default profile image if the user has no photoURL
+          const defaultProfileImage = "https://example.com/default-profile-img.png";
+
+          // Save user data to Firebase
+          set(ref(db, `users/${user.uid}`), {
+            name: name,
+            email: email,
+            profileImage: defaultProfileImage, // Use a valid URL for the default profile picture
+            createdAt: new Date().toISOString(),
+            friendRequests: {}, // Initialize friendRequests as an empty object
+            friends: {}, // Initialize friends as an empty object
+          });
+
+          setEmail("");
+          setName("");
+          setPassword("");
+          toast.success("Registration successfully done!");
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
+        })
+        .catch((error) => {
+          setLoader(false);
+          if (error.code.includes("auth/email-already-in-use")) {
+            setEmailerr(true);
+            toast.error("Email is already in use!");
+          } else {
+            toast.error("Registration failed! Try again.");
+          }
         });
-    
-        // Set default profile image if the user has no photoURL
-        const defaultProfileImage = "https://example.com/default-profile-img.png";
-    
-        set(ref(db, `users/${user.uid}`), {
-          name: name,
-          email: email,
-          profileImage: "https://example.com/default-profile-img.png", // Use a valid URL for the default profile picture
-          createdAt: new Date().toISOString(),
-        });
-        
-        setEmail("");
-        setName("");
-        setPassword("");
-        toast.success("Registration successfully done!");
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
-      })
-      .catch((error) => {
-        setLoader(false);
-        if (error.code.includes("auth/email-already-in-use")) {
-          setEmailerr(true);
-          toast.error("Email is already in use!");
-        } else {
-          toast.error("Registration failed! Try again.");
-        }
-      });
-    
     }
   };
 
