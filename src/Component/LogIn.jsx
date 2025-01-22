@@ -32,7 +32,6 @@ const LogIn = () => {
         const userId = user.uid;
         const userRef = ref(db, `users/${userId}`);
   
-        // Default values for photoURL and displayName
         const profile_img_placeholder = "https://example.com/default-profile-img.png"; // Replace with a real URL
         const default_name = "Anonymous User";
   

@@ -24,8 +24,6 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validate inputs
     if (!email || !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
       setEmailerr(true);
     } else {
@@ -44,7 +42,6 @@ const Register = () => {
       setPassworderr(false);
     }
 
-    // If all fields are valid, proceed to register
     if (email && name && password) {
       setLoader(true);
       createUserWithEmailAndPassword(auth, email, password)
@@ -55,17 +52,13 @@ const Register = () => {
             toast.success("Verification email sent!");
           });
 
-          // Set default profile image if the user has no photoURL
-          const defaultProfileImage = "https://example.com/default-profile-img.png";
-
-          // Save user data to Firebase
+         
           set(ref(db, `users/${user.uid}`), {
             name: name,
             email: email,
-            profileImage: defaultProfileImage, // Use a valid URL for the default profile picture
             createdAt: new Date().toISOString(),
-            friendRequests: {}, // Initialize friendRequests as an empty object
-            friends: {}, // Initialize friends as an empty object
+            friendRequests: {}, 
+            friends: {}, 
           });
 
           setEmail("");

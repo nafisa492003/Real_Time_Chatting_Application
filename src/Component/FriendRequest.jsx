@@ -27,7 +27,6 @@ const FriendRequest = () => {
           return {
             id,
             name: data.name || "Anonymous",
-            email: data.email || "No email provided",
             profileImage: data.profileImage || group_img,
             message: data.message || "No message",
           };
@@ -129,9 +128,6 @@ const FriendRequest = () => {
                 <h4 className="text-[16px] md:text-[18px] font-Poppins font-semibold dark:text-white">
                   {request.name || "Anonymous"}
                 </h4>
-                <span className="text-[14px] font-Poppins font-normal dark:text-white">
-                  {request.email || "No email provided"}
-                </span>
               </div>
             </div>
             <div className="flex items-center gap-1">
