@@ -22,7 +22,7 @@ const User_List = () => {
             ...data[key],
             requested: data[key]?.friendRequests?.[currentUser] ? true : false,
           }))
-          .filter((user) => user.id !== currentUser); // Exclude current user
+          .filter((user) => user.id !== currentUser);
         setUsers(userList);
       }
     });
@@ -39,7 +39,6 @@ const User_List = () => {
     );
 
     if (isRequested) {
-      // Cancel the friend request
       remove(receiverRequestRef).then(() => {
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
@@ -48,7 +47,6 @@ const User_List = () => {
         );
       });
     } else {
-      // Send the friend request
       set(receiverRequestRef, {
         name: senderName || "Anonymous",
         profileImage: senderProfileImage || group_img,

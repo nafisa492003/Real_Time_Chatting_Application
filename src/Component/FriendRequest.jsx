@@ -20,10 +20,10 @@ const FriendRequest = () => {
 
     const friendRequestsRef = ref(db, `users/${currentUser.uid}/friendRequests`);
 
-    const unsubscribe = onValue(friendRequestsRef, (snapshot) => {
+    const friendrequest = onValue(friendRequestsRef, (snapshot) => {
       if (snapshot.exists()) {
         const requests = Object.entries(snapshot.val()).map(([id, data]) => {
-          console.log("Data Retrieved for Friend Request:", data);
+          console.log(data);
           return {
             id,
             name: data.name || "Anonymous",
@@ -39,8 +39,9 @@ const FriendRequest = () => {
       }
     });
 
-    return () => unsubscribe();
+    return () => friendrequest();
   }, [db, currentUser]);
+  
 
   const handleAcceptRequest = (senderId, senderName, senderProfileImage) => {
     if (!currentUser) return;

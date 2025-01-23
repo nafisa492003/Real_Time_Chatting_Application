@@ -32,18 +32,17 @@ const LogIn = () => {
         const userId = user.uid;
         const userRef = ref(db, `users/${userId}`);
   
-        const profile_img_placeholder = "https://example.com/default-profile-img.png"; // Replace with a real URL
+        const profile_img_placeholder = "https://example.com/default-profile-img.png";
         const default_name = "Anonymous User";
   
         get(userRef)
           .then((snapshot) => {
             if (!snapshot.exists()) {
-              // Save user data if not already present
               set(userRef, {
-                name: user.displayName || default_name, // Use fallback if displayName is null
+                name: user.displayName || default_name,
                 email: user.email,
-                profileImage: user.photoURL || profile_img_placeholder, // Fallback if photoURL is null
-                createdAt: new Date().toISOString(), // Track when the user was created
+                profileImage: user.photoURL || profile_img_placeholder,
+                createdAt: new Date().toISOString(),
               })
                 .then(() => {
                   toast.success("Google login successful!");
@@ -55,7 +54,6 @@ const LogIn = () => {
                       photoURL: user.photoURL || profile_img_placeholder,
                     })
                   );
-                  // Redirect to home after a short delay
                   setTimeout(() => {
                     navigate("/");
                   }, 2000);
@@ -65,10 +63,8 @@ const LogIn = () => {
                   toast.error("Failed to save user data.");
                 });
             } else {
-              // If user data already exists
               const existingUser = snapshot.val();
   
-              // Ensure that the user data is up to date (e.g., in case of updated Google profile)
               const updatedUserData = {
                 name: existingUser.name || user.displayName || default_name,
                 email: user.email,
@@ -86,7 +82,7 @@ const LogIn = () => {
                       photoURL: updatedUserData.profileImage,
                     })
                   );
-                  // Redirect to home after a short delay
+
                   setTimeout(() => {
                     navigate("/");
                   }, 2000);
