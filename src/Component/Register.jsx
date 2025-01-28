@@ -56,9 +56,7 @@ const Register = () => {
           set(ref(db, `users/${user.uid}`), {
             name: name,
             email: email,
-            createdAt: new Date().toISOString(),
-            friendRequests: {}, 
-            friends: {}, 
+            createdAt: new Date().toISOString(), 
           });
 
           setEmail("");
