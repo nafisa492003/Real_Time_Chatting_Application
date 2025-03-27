@@ -3,9 +3,38 @@ import { HiDotsVertical } from "react-icons/hi";
 import { MdOutlineDone } from "react-icons/md";
 import { RxCross1 } from "react-icons/rx";
 import group_img from "../assets/group_img.png";
-
+import { getDatabase, ref, onValue, set, push, remove } from "firebase/database";
+import { useSelector } from "react-redux";
 const FriendRequest = () => {
-
+const db = getDatabase();
+  const [friendList, setFriend] = useState([]);
+  const friendData = useSelector((secletor) => secletor.user.user);
+  const [loading, setLoading] = useState(false);
+  console.log(friendData, "userdata");
+   useEffect(() => {
+      setLoading(true);
+      const friendRef = ref(db, "friendrequest/");
+      onValue(friendRef, (snapshot) => {
+        let arr = [];
+        snapshot.forEach((iteam) => {
+          if(friendData.uid == iteam.val().receiverid){
+            arr.push({ ...iteam.val(), userid: iteam.key }) 
+          }
+        });
+        setFriend(arr);
+        setLoading(false);
+      });
+    }, []);
+    console.log(friendList, "friendrequest");
+    // handale friend request
+    const handlefriend =(iteam)=>{
+      console.log(iteam);
+      set(push(ref(db, "friend/")), {
+           ...iteam
+          }).then(()=>{
+            remove(ref(db,"friendrequest/" + iteam.userid))
+          })
+    }
   return (
     <div className="w-full bg-white rounded-[8px] shadow-2xl dark:bg-[#252728] p-3 mb-6">
       <div className="flex items-center justify-between mb-3">
@@ -14,23 +43,29 @@ const FriendRequest = () => {
         </h2>
         <HiDotsVertical size={20} className="text-blue" />
       </div>
+      {loading ? (
+        <h1 className="text-[20px] text-center font-Open_Sans text-blue">
+          Loading
+        </h1>
+      ) : (friendList.map((iteam)=>(
           <div
             className="flex items-center justify-between py-3 border-b-2 dark:border-[#4c5050]"
           >
             <div className="flex items-center gap-4">
               <img
-                src={group_img}
+                src={iteam.senderimage}
                 className="object-cover rounded-full w-[50px] h-[50px]"
               />
               <div>
                 <h4 className="text-[16px] md:text-[18px] font-Poppins font-semibold dark:text-white">
-                  friend
+                 {iteam.sendername}
                 </h4>
               </div>
             </div>
             <div className="flex items-center gap-1">
               <button>
-                <MdOutlineDone
+                <MdOutlineDone 
+                onClick={()=>handlefriend(iteam)}
                   size={28}
                   className="text-royal_blue dark:text-white"
                 />
@@ -43,6 +78,7 @@ const FriendRequest = () => {
               </button>
             </div>
           </div>
+      )))}
     </div>
   );
 };
