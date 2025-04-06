@@ -72,6 +72,7 @@ const User_List = () => {
       senderimage: userDetails.profileImage,
       recivername: item.name,
       receiverid: item.userid,
+      receiverimage: item.profileImage,
     });
   };
 
