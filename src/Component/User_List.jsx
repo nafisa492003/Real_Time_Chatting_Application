@@ -19,6 +19,7 @@ const User_List = () => {
   const [loading, setLoading] = useState(false);
   const [userDetails, setUserDetails] = useState("");
   const [friends, setFriends] = useState([]);
+  const [blockedUsers, setBlockedUsers] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -63,7 +64,6 @@ const User_List = () => {
     });
   }, []);
   //
- 
 
   const handleFriendRequest = (item) => {
     set(push(ref(db, "friendrequest/")), {
@@ -103,6 +103,20 @@ const User_List = () => {
       setLoading(false);
     });
   }, []);
+  useEffect(() => {
+    const blockRef = ref(db, "blocked/");
+    onValue(blockRef, (snapshot) => {
+      let arr = [];
+      snapshot.forEach((item) => {
+        arr.push({
+          blocker: item.val().blockerid,
+          blocked: item.val().blockedid,
+        });
+      });
+      console.log("Blocked users from DB: ", arr);
+      setBlockedUsers(arr);
+    });
+  }, []);
   return (
     <div className="w-full bg-white rounded-[8px] shadow-2xl dark:bg-[#252728] p-3 mb-6">
       <div className="flex items-center justify-between mb-3">
@@ -129,6 +143,12 @@ const User_List = () => {
                 req.receiverId === item.userid) ||
               (req.receiverId === userData.uid && req.senderId === item.userid)
           );
+          const isBlocked = blockedUsers.some(
+            (block) =>
+              (block.blocker === userData.uid &&
+                block.blocked === item.userid) ||
+              (block.blocked === userData.uid && block.blocker === item.userid)
+          );
           return (
             <div
               key={item.userid}
@@ -149,11 +169,13 @@ const User_List = () => {
                   </span>
                 </div>
               </div>
-              {isfriend ? <span className="text-[14px] font-Poppins font-normal dark:text-white">
-                Friend
-              </span> :
-              
-         isRequested ? (
+              {isBlocked ? (
+                <span className="font-semibold text-red-500">Blocked</span>
+              ) : isfriend ? (
+                <span className="text-[14px] font-Poppins font-normal dark:text-white">
+                  Friend
+                </span>
+              ) : isRequested ? (
                 <button
                   onClick={() => handleCancelRequest(item)}
                   className="font-semibold font-Poppins text-[16px] md:text-[20px] text-white bg-blue px-4 rounded-lg py-2"
@@ -167,9 +189,7 @@ const User_List = () => {
                 >
                   <FaPlus />
                 </button>
-              )
-              }
-
+              )}
             </div>
           );
         })

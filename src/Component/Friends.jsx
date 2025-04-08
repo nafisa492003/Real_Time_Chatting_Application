@@ -46,9 +46,7 @@ const Friends = () => {
       blockerimage: iteam.receiverimage,
       blockedimage: iteam.uid === iteam.senderid ? iteam.receiverimage : iteam.senderimage,
     };
-  
     set(push(ref(db, "blocked/")), blockedUser).then(() => {
-      // Remove from friend list
       remove(ref(db, `friend/${iteam.userid}`));
     });
   };

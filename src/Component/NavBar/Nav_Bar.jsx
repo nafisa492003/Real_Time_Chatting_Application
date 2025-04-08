@@ -33,7 +33,7 @@ const Nav_Bar = () => {
         />
       )}
 
-      <div className="w-[186px] h-[832px] py-[30px] px-10 rounded-[20px] bg-blue dark:bg-gray-900 hidden lg:block">
+      <div className="w-[186px] h-[832px] py-[30px] px-10 rounded-[20px] bg-blue dark:bg-gray-900 hidden lg:block sticky">
         <div className="flex flex-col items-center gap-[50px]">
           <Profile_pick />
           <Home_Btn />

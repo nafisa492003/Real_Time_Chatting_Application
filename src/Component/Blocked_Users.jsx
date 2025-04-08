@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
-import { getDatabase, ref, onValue, remove, push, set } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  remove,
+  push,
+  set,
+} from "firebase/database";
 import { useSelector } from "react-redux";
 
 const Blocked_Users = () => {
@@ -25,11 +32,11 @@ const Blocked_Users = () => {
     // Add back to friends
     set(push(ref(db, "friend/")), {
       senderid: currentUser.uid,
-  sendername: currentUser.displayName,
-  senderimage: user.blockerimage,
-  receiverid: user.blockedid,
-  receivername: user.blockedname,  // ✅ correct key
-  receiverimage: user.blockedimage,
+      sendername: currentUser.displayName,
+      senderimage: user.blockerimage,
+      receiverid: user.blockedid,
+      receivername: user.blockedname, // ✅ correct key
+      receiverimage: user.blockedimage,
     }).then(() => {
       // Remove from blocked
       remove(ref(db, "blocked/" + user.blockid));
@@ -46,7 +53,10 @@ const Blocked_Users = () => {
       </div>
 
       {blockedList.map((user) => (
-        <div key={user.blockid} className="flex items-center justify-between py-3 border-b-2 dark:border-[#4c5050]">
+        <div
+          key={user.blockid}
+          className="flex items-center justify-between py-3 border-b-2 dark:border-[#4c5050]"
+        >
           <div className="flex items-center gap-4">
             <img
               src={user.blockedimage}
