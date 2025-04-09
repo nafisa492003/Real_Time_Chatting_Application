@@ -9,7 +9,7 @@ const Message_btn = () => {
            isActive ? "p-5 bg-white dark:bg-black dark:text-blue rounded-full text-blue" : "text-[#bad1ff] dark:text-white"
          }
        >
-        <AiFillMessage size={40}/>
+        <AiFillMessage className="text-[30px] md:text-[40px]"/>
        </NavLink>
   )
 }

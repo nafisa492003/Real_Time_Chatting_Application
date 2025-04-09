@@ -10,7 +10,7 @@ const Home_Btn = () => {
         isActive ? "p-5 bg-white dark:bg-black dark:text-blue rounded-full text-blue" : "text-[#bad1ff] dark:text-white"
       }
     >
-      <IoHome size={40} />
+      <IoHome className="text-[30px] md:text-[40px]" />
     </NavLink>
   );
 };

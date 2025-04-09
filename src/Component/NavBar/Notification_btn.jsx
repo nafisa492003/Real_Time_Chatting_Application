@@ -11,7 +11,7 @@ const Notification_btn = () => {
           : "text-[#bad1ff] dark:text-white"
       }
     >
-      <HiMiniUsers size={40} />
+      <HiMiniUsers className="text-[30px] md:text-[40px]" />
     </NavLink>
   );
 };

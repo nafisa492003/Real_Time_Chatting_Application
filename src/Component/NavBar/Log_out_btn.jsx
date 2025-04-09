@@ -24,7 +24,7 @@ const Log_out_btn = () => {
       onClick={handleLogout}
       className="p-5 transition-all duration-100 rounded-full text-royal_blue hover:bg-white hover:text-blue dark:text-blue"
     >
-      <AiOutlineLogout size={40} />
+      <AiOutlineLogout className="text-[30px] md:text-[40px]" />
     </button>
   );
 };

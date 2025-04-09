@@ -10,7 +10,7 @@ const Mood_btn = () => {
       onClick={toggleDarkMode}
       className="p-3 rounded-full bg-royal_blue text-blue dark:bg-black dark:text-blue"
     >
-      {darkMode ? <TbSunFilled size={40}/> : <IoMoon size={40} />}
+      {darkMode ? <TbSunFilled className="text-[30px] md:text-[40px]"/> : <IoMoon className="text-[30px] md:text-[40px]" />}
     </button>
   
   )

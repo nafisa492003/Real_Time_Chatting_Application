@@ -5,6 +5,7 @@ import Friends from "../Component/Friends";
 import User_List from "../Component/User_List";
 import Blocked_Users from "../Component/Blocked_Users";
 import FriendRequest from "../Component/FriendRequest";
+import Post from "../Component/Post";
 const Home = () => {
   return (
     <section className="flex flex-col justify-between lg:flex-row">
@@ -15,10 +16,10 @@ const Home = () => {
         <My_group />
       </div> */}
       <div className='w-full'>
-     section for post
+    <Post/>
      
     </div>
-      <div className="hidden w-full lg:w-1/2 lg:block">
+      <div className="hidden w-full  lg:w-1/2 lg:block">
         <User_List />
         <Friends />
         <FriendRequest />
