@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import profile_img_placeholder from "../../assets/profile_pick.png";
 import { RiUploadCloud2Fill } from "react-icons/ri";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
@@ -11,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 const Profile_pick = () => {
   const [profilepick, setProfilepick] = useState(false);
   const [image, setImage] = useState(null);
-  const [profileImage, setProfileImage] = useState(profile_img_placeholder);
+  const [profileImage, setProfileImage] = useState('');
   const [userName, setUserName] = useState("");
   const cropperRef = useRef(null);
   const auth = getAuth();

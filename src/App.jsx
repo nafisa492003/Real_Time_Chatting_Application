@@ -23,7 +23,7 @@ const App = () => {
           <Route index element={<Home />} />
           <Route path="/message" element={<Message />} />
           <Route path="/notification" element={<Notification />} />
-          <Route path="/setting" element={<Setting />} />
+          <Route  element={<Setting />} />
         </Route>
       </>
     )

@@ -4,11 +4,19 @@ import User_chat from "../Component/User_chat";
 
 const Message = () => {
   const [selectedUser, setSelectedUser] = useState(null);
+
   return (
-    <section className="flex">
-      <User_message onUserSelect={setSelectedUser} />
+    <section className="flex flex-col w-full h-full lg:flex-row">
+      {/* User List - Hide on mobile if a user is selected */}
+      <div className={`${selectedUser ? "hidden" : "block"} lg:block lg:w-1/2`}>
+        <User_message onUserSelect={setSelectedUser} />
+      </div>
+
+      {/* Chat Window - Show only if user is selected */}
       {selectedUser && (
-        <User_chat receiver={selectedUser} />
+        <div className="w-full lg:w-1/2">
+          <User_chat receiver={selectedUser} onBack={() => setSelectedUser(null)} />
+        </div>
       )}
     </section>
   );
