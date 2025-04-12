@@ -1,15 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-let storedUser = null;
-
-// ✅ Safe access only in browser
-if (typeof window !== "undefined") {
-  const userFromStorage = localStorage.getItem("user");
-  storedUser = userFromStorage ? JSON.parse(userFromStorage) : null;
-}
-
 const initialState = {
-  user: storedUser,
+  user: null, // ✅ no need to pull from localStorage manually
 };
 
 const userSlice = createSlice({
@@ -17,16 +9,10 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      state.user = action.payload;
-      if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(action.payload));
-      }
+      state.user = action.payload; // ✅ no need to setItem
     },
     logout: (state) => {
-      state.user = null;
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("user");
-      }
+      state.user = null; // ✅ no need to removeItem
     },
   },
 });
