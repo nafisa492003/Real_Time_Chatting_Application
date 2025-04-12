@@ -14,7 +14,7 @@ const Blocked_Users = () => {
   const db = getDatabase();
   const [blockedList, setBlockedList] = useState([]);
   const currentUser = useSelector((selector) => selector.user.user);
-
+  if (!currentUser) return <p className="text-center text-blue">Loading...</p>;
   useEffect(() => {
     const blockRef = ref(db, "blocked/");
     onValue(blockRef, (snapshot) => {
