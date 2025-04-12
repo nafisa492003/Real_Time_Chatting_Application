@@ -17,7 +17,7 @@ const FriendRequest = () => {
   const [friendList, setFriend] = useState([]);
   const friendData = useSelector((secletor) => secletor.user.user);
   const [loading, setLoading] = useState(false);
-  console.log(friendData, "userdata");
+  if (!friendData) return <p className="text-center text-blue">Loading user...</p>;
   useEffect(() => {
     setLoading(true);
     const friendRef = ref(db, "friendrequest/");

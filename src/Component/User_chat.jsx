@@ -7,12 +7,11 @@ import { FaSmile, FaPaperPlane } from "react-icons/fa";
 const User_chat = ({ receiver , onBack}) => {
   const db = getDatabase();
   const userData = useSelector((state) => state.user.user);
-
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [showEmoji, setShowEmoji] = useState(false);
   const messagesEndRef = useRef(null);
-
+  if (!userData) return <p className="text-center text-blue">Loading...</p>;
   const chatID =
     userData.uid > receiver.userid
       ? `${userData.uid + receiver.userid}`

@@ -8,7 +8,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import store, { persistor } from "./Store.js";
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
+    <PersistGate loading={<p>Loading...</p>} persistor={persistor}>
       <DarkModeProvider>
         <App />
       </DarkModeProvider>

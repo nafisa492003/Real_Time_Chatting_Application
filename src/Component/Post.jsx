@@ -12,7 +12,7 @@ const Post = () => {
   const [userDetails, setUserDetails] = useState({});
   const [postText, setPostText] = useState("");
   const [posts, setPosts] = useState([]);
-
+  if (!userData) return <p className="text-center text-blue">Loading...</p>;
   // Fetch user profile image and name
   useEffect(() => {
     const userRef = ref(db, `users/${userData.uid}`);

@@ -20,7 +20,7 @@ const User_List = () => {
   const [userDetails, setUserDetails] = useState("");
   const [friends, setFriends] = useState([]);
   const [blockedUsers, setBlockedUsers] = useState([]);
-
+  if (!userData) return <p className="text-center text-blue">Loading...</p>;
   useEffect(() => {
     setLoading(true);
     const userRef = ref(db, "users/");
