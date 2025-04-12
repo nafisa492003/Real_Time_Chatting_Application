@@ -6,7 +6,6 @@ const User_message = ({ onUserSelect }) => {
   const db = getDatabase();
   const [userList, setUserList] = useState([]);
   const userData = useSelector((state) => state.user.user);
-  if (!userData) return null;
 //   users data
 useEffect(() => {
   const userRef = ref(db, "users/");
